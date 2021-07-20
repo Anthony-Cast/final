@@ -12,9 +12,7 @@ server.listen(3000,function () {
 app.get("/login",function(req,res){
     res.sendFile(__dirname+"/login.html");
 });
-app.get("/chat",function(req,res){
-    res.sendFile(__dirname+"/index.html");
-});
+
 
 let nombres=[];
 let cantidad=0;
@@ -51,11 +49,12 @@ io.on("connection",function (socket) {
    socket.on("credenciales",function(creds){
       user=creds.split(",")[0];
       pass=creds.split(",")[1];
-      if(user!="") {
-          console.log(user);
-          app.use((req, res, next) => {
-              res.redirect('/chat');
-              return;
+      if(user!=""){
+          app.get("/chat",function(req,res){
+              res.sendFile(__dirname+"/index.html");
+          });
+          app.use(function(req,res,next) {
+              res.redirect("/chat");
           });
       }
    });
