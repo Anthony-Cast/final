@@ -46,12 +46,7 @@ io.on("connection",function (socket) {
        io.emit("usuarios",nombres);
        console.log("usuario desconectado");
    });
-   socket.on("cliente",function(nombre){
-       clienteName=nombre;
-       nombres.push(nombre);
-       io.emit("usuarios",nombres);
-   });
-   
+
    socket.on("textoChat",function(mensaje){
        if(!(mensaje == "cmd-mensajes")){
            if(!(mensaje == "cmd-usuarios-c")){
@@ -93,16 +88,29 @@ io.on("connection",function (socket) {
    socket.on("proceso",function(proceso){
        io.emit("tipeo",proceso);
     });
-   socket.on("credenciales",function(creds){
-      user=creds.split(",")[0];
-      pass=creds.split(",")[1];
-      if(user!=""){
-          app.get("/chat",function(req,res){
-              res.sendFile(__dirname+"/index.html");
-          });
-          app.use(function(req,res,next) {
-              res.redirect("/chat");
-          });
-      }
-   });
+    socket.on("credenciales",function(creds){
+        user=creds.split(",")[0].trim();
+        pass=creds.split(",")[1].trim();
+        console.log(user);
+        console.log(pass);
+        let sql = "SELECT idusuarios FROM usuarios where nombre = ? and contrasenia= ?";
+        let params = [user,pass];
+        conn.query(sql, params, function (err,results){
+            if (err) throw err;
+            console.log(results);
+            if(results!=""){
+                //redireccion al chat
+                app.use(function (req,res,next) {
+                    nombres.push(user);
+                    //io.emit("usuarios",nombres);
+                    res.redirect("/chat");
+                });
+            }
+            else{
+                console.log("no existe");
+            }
+
+        });
+    });
+
 });
