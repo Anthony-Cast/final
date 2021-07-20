@@ -39,9 +39,22 @@ io.on("connection",function (socket) {
        io.emit("usuarios",nombres);
    });
    socket.on("textoChat",function(mensaje){
-       let info="mensaje de "+clienteName+ ": "+ mensaje;
-       console.log(info);
-       socket.broadcast.emit("mensaje",info);
+       if(!(mensaje == "cmd-mensajes")){
+           if(!(mensaje == "cmd-usuarios-c")){
+               if(!((mensaje.includes('cmd-')))){
+                   console.log("No es ningun tipo de comando");
+                   let info="mensaje de "+clienteName+ ": "+ mensaje;
+                   console.log(info);
+                   socket.broadcast.emit("mensaje",info);
+               }else{
+                   console.log("Comando de cmd-palabra");
+               }
+           }else{
+               console.log("Comando de cmd-usuarios-c");
+           }
+       }else{
+           console.log("Comando de cmd-mensajes");
+       }
    });
    socket.on("proceso",function(proceso){
        io.emit("tipeo",proceso);
