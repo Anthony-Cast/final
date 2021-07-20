@@ -37,9 +37,11 @@
         nombre= $("#nombre").val();
         socket.emit("cliente",nombre);
       });
-      socket.on("mensaje",function (mensaje) {
-        $("#messages").append("<li>"+mensaje+"</li>");
+
+      socket.on("mensajechat",function (mensajechat) {
+        $("#messages").append("<li>"+mensajechat+"</li>");
       });
+
       socket.on("cantidad",function (cantidad) {
         $("#cant").html(cantidad);
       });
