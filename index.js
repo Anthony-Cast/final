@@ -1,7 +1,7 @@
 const express = require("express")
 const http = require("http")
 const socketIO = require("socket.io")
-
+const fs=require("fs")
 var app = express();
 var server = http.Server(app);
 var io = socketIO(server); //el general
@@ -9,13 +9,18 @@ var io = socketIO(server); //el general
 server.listen(3000,function () {
    console.log("Servidor levantado exitosamente");
 });
-
-app.get("/",function (req,res) {
+app.get("/login",function(req,res){
+    res.sendFile(__dirname+"/login.html");
+});
+app.get("/chat",function(req,res){
     res.sendFile(__dirname+"/index.html");
 });
+
 let nombres=[];
 let cantidad=0;
 let clienteName="";
+let user="";
+let pass="";
 io.on("connection",function (socket) {
    cantidad++;
    io.emit("cantidad",cantidad);
@@ -23,10 +28,7 @@ io.on("connection",function (socket) {
    socket.on("disconnect",function () {
        cantidad--;
        io.emit("cantidad",cantidad);
-       console.log(cantidad);
-       console.log(clienteName);
        var index= nombres.indexOf(clienteName);
-       console.log(index);
        if (index != -1) {
            nombres.splice(index, 1);
        }
@@ -59,6 +61,17 @@ io.on("connection",function (socket) {
    socket.on("proceso",function(proceso){
        io.emit("tipeo",proceso);
     });
+   socket.on("credenciales",function(creds){
+      user=creds.split(",")[0];
+      pass=creds.split(",")[1];
+      if(user!="") {
+          console.log(user);
+          app.use((req, res, next) => {
+              res.redirect('/chat');
+              return;
+          });
+      }
+   });
 });
 
 
