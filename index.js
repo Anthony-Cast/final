@@ -3,6 +3,7 @@ const http = require("http")
 const socketIO = require("socket.io")
 const mysql = require('mysql2');
 const fs=require("fs")
+var sha256 = require('js-sha256');
 const app = express();
 var server = http.Server(app);
 var io = socketIO(server); //el general
@@ -73,11 +74,13 @@ io.on("connection",function (socket) {
                }
            }else{
                console.log("Comando de cmd-usuarios-c");
+               let contra = "login";
+               console.log(sha256(contra));
                //TODO ENVIAR cantidad
            }
        }else{
            console.log("Comando de cmd-mensajes");
-           let sql = "SELECT COUNT(*) FROM MENSAJES;
+           let sql = "SELECT COUNT(*) FROM MENSAJES";
            console.log(sql);
            conn.query(sql, function (err,results){
                if (err) throw err;
