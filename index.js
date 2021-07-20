@@ -1,8 +1,9 @@
 const express = require("express")
 const http = require("http")
 const socketIO = require("socket.io")
+const mysql = require('mysql2');
 const fs=require("fs")
-var app = express();
+const app = express();
 var server = http.Server(app);
 var io = socketIO(server); //el general
 
@@ -13,6 +14,17 @@ app.get("/login",function(req,res){
     res.sendFile(__dirname+"/login.html");
 });
 
+let conn = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
+    database: 'efinal_g5'
+});
+
+conn.connect(function(err){
+    if(err) throw err;
+    console.log("Conexión exitosa a base de datos");
+});
 
 let nombres=[];
 let cantidad=0;
@@ -38,6 +50,7 @@ io.on("connection",function (socket) {
        nombres.push(nombre);
        io.emit("usuarios",nombres);
    });
+   
    socket.on("textoChat",function(mensaje){
        if(!(mensaje == "cmd-mensajes")){
            if(!(mensaje == "cmd-usuarios-c")){
@@ -48,14 +61,32 @@ io.on("connection",function (socket) {
                    socket.broadcast.emit("mensaje",info);
                }else{
                    console.log("Comando de cmd-palabra");
+                   let mensaje_cortado = mensaje.substr(4,mensaje.length);
+                   console.log(mensaje_cortado);
+                   let sql = "SELECT COUNT(*) FROM MENSAJES WHERE TEXTOMENSAJE LIKE '%" + mensaje_cortado + "%'";
+                   console.log(sql);
+                   conn.query(sql, function (err,results){
+                       if (err) throw err;
+                      console.log(results);
+                      //ENVIAR RESULTS
+                   });
                }
            }else{
                console.log("Comando de cmd-usuarios-c");
+               //TODO ENVIAR cantidad
            }
        }else{
            console.log("Comando de cmd-mensajes");
+           let sql = "SELECT COUNT(*) FROM MENSAJES;
+           console.log(sql);
+           conn.query(sql, function (err,results){
+               if (err) throw err;
+               console.log(results);
+               //ENVIAR RESULTS
+           });
        }
    });
+   
    socket.on("proceso",function(proceso){
        io.emit("tipeo",proceso);
     });
@@ -72,7 +103,3 @@ io.on("connection",function (socket) {
       }
    });
 });
-
-
-
-
