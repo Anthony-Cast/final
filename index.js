@@ -84,8 +84,9 @@ io.on("connection",function (socket) {
                    console.log(sql);
                    conn.query(sql, function (err,results){
                        if (err) throw err;
-                      console.log(results);
-                      //ENVIAR RESULTS
+                       var rows = JSON.parse(JSON.stringify(results[0]));
+                      console.log(rows);
+                      io.emit("mensajechat",results);
                    });
                }
            }else{
